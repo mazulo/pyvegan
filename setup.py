@@ -43,8 +43,6 @@ setup(
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'Topic :: System :: Shells',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
@@ -53,7 +51,6 @@ setup(
     download_url='https://github.com/mazulo/pyvegan/archive/master.zip',
     packages=find_packages(exclude=['tests*']),
     install_requires=dependencies,
-    entry_points={'console_scripts': ['pyvegan = pyvegan.pyvegan:main']},
+    entry_points={'console_scripts': ['pyvegan = pyvegan:main']},
     platforms='windows linux',
 )
-
