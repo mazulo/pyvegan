@@ -13,9 +13,9 @@ SEARCH_URL = 'http://presuntovegetariano.com.br/?s={}&lang=en'
 def search_recipe(ingredients):
     """Search using the given ingredients and return the HTML"""
 
-    url_search = '+'.join(ingredients.split())
-    SEARCH_URL.format(url_search)
-    response = req.get(SEARCH_URL)
+    params = '+'.join(ingredients.split())
+    url_search = SEARCH_URL.format(params)
+    response = req.get(url_search)
 
     return response.content
 
@@ -28,13 +28,15 @@ def parse_content(content):
     parsed_html = BeautifulSoup(content, 'html.parser')
 
     for div in parsed_html.find_all('div', attrs={'class': 'post'}):
-        post['post_link'] = div.a.attrs['href']
-        post['post_title'] = div.h1.get_text()
         div_content = div.find(
             'div',
             attrs={'class': 'fusion-post-content-container'}
         )
-        post['post_content'] = div_content.get_text()
+        post = {
+            'post_link': div.a.attrs['href'],
+            'post_title': div.h1.get_text(),
+            'post_content': div_content.get_text(),
+        }
         list_recipes.append(post)
 
     return list_recipes
@@ -58,10 +60,14 @@ def create_menu(list_recipes):
     msg = 'This search isn\'t a valid one'
 
     for recipe in list_recipes:
-        recipe_title = clean_title(recipe['title'])
+        recipe_title = clean_title(recipe['post_title'])
 
-        if 'url' in recipe:
-            item = FunctionItem(recipe_title, url_open, args=[recipe['url']])
+        if 'post_link' in recipe:
+            item = FunctionItem(
+                recipe_title,
+                url_open,
+                args=[recipe['post_link']]
+            )
         else:
             item = FunctionItem(recipe_title, lambda x: print(x), args=[msg])
         menu.append_item(item)
