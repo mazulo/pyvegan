@@ -2,6 +2,11 @@
 import argparse
 import sys
 
+import requests
+
+
+from utils import search_recipe, parse_content, create_menu
+
 
 def main():
     """Main entry point for the script"""
@@ -36,5 +41,27 @@ def main():
     else:
         param = ''
 
-    if __name__ == '__main__':
-        sys.exit(main())
+    try:
+        content = search_recipe(param)
+    except requests.ConnectionError:
+        print('A connection problem occurred.')
+    except requests.Timeout:
+        print('A timeout problem occurred.')
+    except requests.TooManyRedirects:
+        msg = (
+            'The request exceeds the configured'
+            ' number of maximum redirections.'
+        )
+        print(msg)
+
+    if not content:
+        return
+
+    list_recipes = parse_content(content)
+
+    menu = create_menu(list_recipes)
+    menu.show()
+
+
+if __name__ == '__main__':
+    sys.exit(main())
