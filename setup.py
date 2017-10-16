@@ -23,6 +23,7 @@ dependencies = [
     'curses-menu==0.5.0',
     'requests==2.18.1',
     'tqdm==4.14.0',
+    'beautifulsoup4==4.6.0'
 ]
 
 if sys.version_info.major == 2:
