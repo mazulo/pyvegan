@@ -7,12 +7,9 @@ from cursesmenu.items import FunctionItem
 import requests as req
 
 
-SEARCH_URL = 'http://presuntovegetariano.com.br/?s={}&lang=en'
-
-
 class Browser:
     DEFAULT_SEARCH_URL = 'http://presuntovegetariano.com.br/?s={}&lang=en'
-    
+
     def __init__(self, url=DEFAULT_SEARCH_URL):
         self.url = url
         self.response = None
@@ -23,12 +20,12 @@ class Browser:
         params = '+'.join(words.split())
         url_search = self.url.format(params)
         self.response = req.get(url_search)
-    
+
     def page_content(self):
         """Returns the page HTML"""
 
         if not self.response:
-            raise Exception('Search for something first')
+            raise Exception('Search for something first!')
 
         return self.response.content
 
@@ -55,7 +52,7 @@ class RecipeManager:
         self.recipes = []
 
         self.__parse(self.parsed_html)
-    
+
     def __parse(self, html):
         """Parse the HTML content to retrieve the desired info"""
 
@@ -77,7 +74,7 @@ class RecipeManager:
 class Menu:
     def __init__(self, recipes):
         self.recipes = recipes
-        
+
         self.title = 'PyVegan - List of Recipes'
         self.menu = CursesMenu(self.title, 'Select one and press enter')
         self.error_msg = 'This search isn\'t a valid one'
@@ -91,10 +88,10 @@ class Menu:
                     args=[recipe.link]
                 )
             else:
-                item = FunctionItem(recipe.title, lambda x: print(x), args=[self.error_msg])
+                item = FunctionItem(
+                    recipe.title, lambda x: print(x), args=[self.error_msg]
+                )
             self.menu.append_item(item)
 
     def show(self):
         self.menu.show()
-        
-

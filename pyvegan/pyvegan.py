@@ -41,7 +41,6 @@ def main():
         param = ''
 
     try:
-        
         browser = Browser()
         browser.search(param)
         content = browser.page_content()
@@ -55,13 +54,15 @@ def main():
             ' number of maximum redirections.'
         )
         print(msg)
+    except Exception as e:
+        print(e)
 
     if not content:
         return
-    
+
     recipeManager = RecipeManager(content)
     recipes = recipeManager.recipes
-    
+
     menu = Menu(recipes)
     menu.build()
     menu.show()
