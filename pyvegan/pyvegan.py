@@ -4,8 +4,7 @@ import sys
 
 import requests
 
-
-from utils import search_recipe, parse_content, create_menu
+from utils import Menu, Browser, RecipeManager
 
 
 def main():
@@ -42,7 +41,9 @@ def main():
         param = ''
 
     try:
-        content = search_recipe(param)
+        browser = Browser()
+        browser.search(param)
+        content = browser.page_content()
     except requests.ConnectionError:
         print('A connection problem occurred.')
     except requests.Timeout:
@@ -53,13 +54,17 @@ def main():
             ' number of maximum redirections.'
         )
         print(msg)
+    except Exception as e:
+        print(e)
 
     if not content:
         return
 
-    list_recipes = parse_content(content)
+    recipeManager = RecipeManager(content)
+    recipes = recipeManager.recipes
 
-    menu = create_menu(list_recipes)
+    menu = Menu(recipes)
+    menu.build()
     menu.show()
 
 

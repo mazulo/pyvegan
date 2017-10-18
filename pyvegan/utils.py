@@ -7,69 +7,91 @@ from cursesmenu.items import FunctionItem
 import requests as req
 
 
-SEARCH_URL = 'http://presuntovegetariano.com.br/?s={}&lang=en'
+class Browser:
+    DEFAULT_SEARCH_URL = 'http://presuntovegetariano.com.br/?s={}&lang=en'
+
+    def __init__(self, url=DEFAULT_SEARCH_URL):
+        self.url = url
+        self.response = None
+
+    def search(self, words):
+        """Search using the given ingredients"""
+
+        params = '+'.join(words.split())
+        url_search = self.url.format(params)
+        self.response = req.get(url_search)
+
+    def page_content(self):
+        """Returns the page HTML"""
+
+        if not self.response:
+            raise Exception('Search for something first!')
+
+        return self.response.content
 
 
-def search_recipe(ingredients):
-    """Search using the given ingredients and return the HTML"""
+class Recipe:
+    def __init__(self, link=None, title='', content=None):
+        self.link = link
+        self.title = self.__format_title(title)
+        self.content = content
 
-    params = '+'.join(ingredients.split())
-    url_search = SEARCH_URL.format(params)
-    response = req.get(url_search)
+    def __format_title(self, title):
+        """Clean and return the received title"""
 
-    return response.content
+        result = title.encode('utf-8')
 
-
-def parse_content(content):
-    """Parse the HTML content to retrieve the desired info"""
-
-    post = {}
-    list_recipes = []
-    parsed_html = BeautifulSoup(content, 'html.parser')
-
-    for div in parsed_html.find_all('div', attrs={'class': 'post'}):
-        div_content = div.find(
-            'div',
-            attrs={'class': 'fusion-post-content-container'}
-        )
-        post = {
-            'post_link': div.a.attrs['href'],
-            'post_title': div.h1.get_text(),
-            'post_content': div_content.get_text(),
-        }
-        list_recipes.append(post)
-
-    return list_recipes
+        if sys.version_info.major == 3:
+            result = result.decode()
+        return result
 
 
-def clean_title(title):
-    """Clean and return the received title"""
+class RecipeManager:
+    def __init__(self, html_content):
+        self.parsed_html = BeautifulSoup(html_content, 'html.parser')
+        self.recipes = []
 
-    result = title.encode('utf-8')
+        self.__parse(self.parsed_html)
 
-    if sys.version_info.major == 3:
-        result = result.decode()
-    return result
+    def __parse(self, html):
+        """Parse the HTML content to retrieve the desired info"""
 
-
-def create_menu(list_recipes):
-    """Create a CLI menu using CursesMenu"""
-
-    title = 'PyVegan - List of Recipes'
-    menu = CursesMenu(title, 'Select one and press enter')
-    msg = 'This search isn\'t a valid one'
-
-    for recipe in list_recipes:
-        recipe_title = clean_title(recipe['post_title'])
-
-        if 'post_link' in recipe:
-            item = FunctionItem(
-                recipe_title,
-                url_open,
-                args=[recipe['post_link']]
+        for div in html.find_all('div', attrs={'class': 'post'}):
+            div_content = div.find(
+                'div',
+                attrs={'class': 'fusion-post-content-container'}
             )
-        else:
-            item = FunctionItem(recipe_title, lambda x: print(x), args=[msg])
-        menu.append_item(item)
 
-    return menu
+            recipe = Recipe(
+                link=div.a.attrs['href'],
+                title=div.h1.get_text(),
+                content=div_content.get_text()
+            )
+
+            self.recipes.append(recipe)
+
+
+class Menu:
+    def __init__(self, recipes):
+        self.recipes = recipes
+
+        self.title = 'PyVegan - List of Recipes'
+        self.menu = CursesMenu(self.title, 'Select one and press enter')
+        self.error_msg = 'This search isn\'t a valid one'
+
+    def build(self):
+        for recipe in self.recipes:
+            if recipe.link:
+                item = FunctionItem(
+                    recipe.title,
+                    url_open,
+                    args=[recipe.link]
+                )
+            else:
+                item = FunctionItem(
+                    recipe.title, lambda x: print(x), args=[self.error_msg]
+                )
+            self.menu.append_item(item)
+
+    def show(self):
+        self.menu.show()
