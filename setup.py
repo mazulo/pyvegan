@@ -21,9 +21,9 @@ author_name = 'Patrick Mazulo'
 author_email = 'pmazulo@gmail.com'
 dependencies = [
     'curses-menu==0.5.0',
-    'requests==2.18.1',
-    'tqdm==4.14.0',
-    'beautifulsoup4==4.6.0'
+    'requests==2.22.0',
+    'tqdm==4.36.1',
+    'beautifulsoup4==4.8.0'
 ]
 
 if sys.version_info.major == 2:
@@ -31,7 +31,7 @@ if sys.version_info.major == 2:
 
 setup(
     name='PyVegan',
-    version='0.1',
+    version='0.2',
     description=description,
     long_description=long_description,
     url='https://github.com/mazulo/pyvegan',
