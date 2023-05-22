@@ -21,7 +21,7 @@ author_name = 'Patrick Mazulo'
 author_email = 'pmazulo@gmail.com'
 dependencies = [
     'curses-menu==0.5.0',
-    'requests==2.22.0',
+    'requests==2.31.0',
     'tqdm==4.36.1',
     'beautifulsoup4==4.8.0'
 ]
